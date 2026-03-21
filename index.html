@@ -292,6 +292,9 @@
     .biko-btn:hover { border-color: #1a73e8; color: #1a73e8; background: #e8f0fe; }
     .biko-btn.active { background: #1a73e8; border-color: #1a73e8; color: #fff; font-weight: 500; }
 
+    .biko-btn-jikan:hover { border-color: #e37400; color: #fff; background: #f09000; }
+    .biko-btn-jikan.active { background: #e37400; border-color: #e37400; color: #fff; }
+
     .biko-preview {
       font-size: 0.82rem;
       color: #202124;
@@ -304,18 +307,24 @@
     }
     .biko-preview.empty { color: #9aa0a6; font-style: italic; }
 
-    .jikan-picker { display: none; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .jikan-picker { display: none; flex-direction: column; gap: 10px; margin-bottom: 8px; padding: 10px; background: #fef7ed; border: 1px solid #f0c36d; border-radius: 6px; }
     .jikan-picker.visible { display: flex; }
-    .jikan-picker input {
-      border: 1px solid #1a73e8;
-      border-radius: 4px;
-      padding: 6px 8px;
-      font-size: 0.82rem;
-      font-family: inherit;
-      color: #202124;
-      outline: none;
+    .jikan-step { }
+    .jikan-step-label { font-size: 0.7rem; font-weight: 500; color: #e37400; display: block; margin-bottom: 5px; }
+    .jikan-btns { display: flex; flex-wrap: wrap; gap: 5px; }
+    .jikan-opt {
+      padding: 4px 11px;
+      border: 1px solid #dadce0;
+      border-radius: 14px;
       background: #fff;
+      color: #3c4043;
+      font-size: 0.75rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
     }
+    .jikan-opt:hover { border-color: #e37400; color: #e37400; background: #fff8f0; }
+    .jikan-opt.active { background: #e37400; border-color: #e37400; color: #fff; font-weight: 500; }
 
     /* ===== Step 3 ===== */
     .step3-wrap { max-width: 1100px; margin: 0 auto; }
@@ -438,6 +447,54 @@
       background: #fff8f7 !important;
     }
 
+    /* ===== モード切替タブ ===== */
+    .mode-tabs-wrap {
+      max-width: 1100px;
+      margin: 16px auto 0;
+    }
+    .mode-tabs {
+      display: flex;
+      border-bottom: 2px solid #dadce0;
+    }
+    .mode-tab {
+      flex: 1;
+      padding: 12px 16px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 500;
+      font-family: inherit;
+      color: #5f6368;
+      background: none;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s, background 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .mode-tab:hover {
+      background: #f1f3f4;
+      color: #202124;
+    }
+    .mode-tab.active {
+      color: #1a73e8;
+    }
+    .mode-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #1a73e8;
+      border-radius: 3px 3px 0 0;
+    }
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+
     /* ===== トースト ===== */
     .toast {
       position: fixed;
@@ -458,6 +515,73 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.error { background: #c5221f; font-size: 0.92rem; padding: 12px 28px; }
+
+    /* ===== 狭い画面（サイドバー利用向け） ===== */
+    @media (max-width: 540px) {
+      /* アプリバー：コンパクト化 */
+      .app-bar { padding: 0 10px; }
+      .app-bar-inner { height: 44px; gap: 8px; }
+      .brand-logo { font-size: 1.2rem; }
+      .brand-title { font-size: 0.82rem; }
+      .brand-sub { display: none; }
+      .brand-divider { height: 20px; }
+
+      /* ページ本体 */
+      .page-body { padding: 8px 8px 40px; }
+
+      /* カード */
+      .card { padding: 12px; margin-bottom: 10px; }
+      .card-title { font-size: 0.72rem; margin-bottom: 10px; }
+
+      /* タブ */
+      .mode-tabs-wrap { margin-bottom: 4px; }
+      .mode-tab { padding: 8px 8px; font-size: 0.82rem; }
+
+      /* ステップラベル */
+      .step-label { font-size: 0.68rem; margin-bottom: 4px; }
+
+      /* Step1 */
+      .step1-grid { grid-template-columns: 1fr; gap: 10px; }
+      textarea { height: 140px; font-size: 0.8rem; padding: 8px; }
+      .btn-parse { padding: 8px; font-size: 0.82rem; }
+      .btn-clear { padding: 6px; font-size: 0.72rem; }
+
+      /* 自動取得 */
+      .auto-field { gap: 6px; padding: 5px 0; }
+      .auto-label { font-size: 0.68rem; min-width: 52px; }
+      .auto-input { font-size: 0.8rem; }
+
+      /* 手動入力 */
+      .manual-fields { grid-template-columns: 1fr !important; gap: 10px !important; }
+      .manual-fields > * {
+        grid-column: auto !important;
+        grid-row: auto !important;
+      }
+      .manual-field input, .manual-field select { padding: 6px 8px; font-size: 0.8rem; }
+      .manual-field label { font-size: 0.68rem; }
+
+      /* ボタン系 */
+      .biko-btn, .apo-btn { padding: 4px 10px; font-size: 0.72rem; }
+      .jikan-opt { padding: 3px 8px; font-size: 0.7rem; }
+      .jikan-picker { padding: 8px; gap: 8px; }
+      .jikan-step-label { font-size: 0.65rem; }
+      .cmikomi-btn { padding: 8px 12px; font-size: 0.72rem; }
+      .biko-preview { font-size: 0.78rem; padding: 6px 8px; }
+
+      /* 出力テーブル */
+      .output-table { font-size: 0.72rem; }
+      .output-table th { padding: 6px 8px; font-size: 0.64rem; }
+      .output-table td { padding: 6px 8px; max-width: 120px; }
+      .output-table input[type="text"] { width: 100% !important; min-width: 0 !important; font-size: 0.75rem !important; padding: 4px 6px !important; }
+
+      /* コピーボタン */
+      .copy-actions { flex-direction: column; gap: 6px; }
+      .btn-copy-main { padding: 10px 16px; font-size: 0.82rem; min-width: auto; }
+
+      /* トースト */
+      .toast { font-size: 0.78rem; padding: 8px 16px; white-space: normal; max-width: 90vw; text-align: center; }
+      .toast.error { font-size: 0.82rem; padding: 10px 18px; }
+    }
   </style>
 </head>
 <body>
@@ -477,14 +601,149 @@
 
 <div class="page-body">
 
+<!-- ===== モード切替タブ ===== -->
+<div class="mode-tabs-wrap" style="margin-top:0;">
+  <div class="mode-tabs">
+    <button class="mode-tab active" data-tab="mikomi" onclick="switchTab('mikomi')">見込み・追客</button>
+    <button class="mode-tab" data-tab="tossup" onclick="switchTab('tossup')">トス</button>
+  </div>
+</div>
+
+<!-- ===== 見込み・追客 タブ ===== -->
+<div class="tab-panel active" id="panel-mikomi">
+
+  <p class="step-label" style="margin-top:16px;">見込み — 入力</p>
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="card">
+      <div class="card-title">✏️ 入力項目</div>
+      <div class="manual-fields" style="grid-template-columns:repeat(2,1fr);">
+
+        <!-- 次回コール日時 -->
+        <div class="manual-field">
+          <label>次回コール日時</label>
+          <div style="display:flex;gap:8px;">
+            <input type="date" autocomplete="nope" id="mk-date" style="flex:1;border:1px solid #dadce0;border-radius:4px;padding:8px 10px;font-size:0.85rem;font-family:inherit;color:#202124;outline:none;background:#fff;">
+            <select autocomplete="nope" id="mk-time" style="flex:1;border:1px solid #dadce0;border-radius:4px;padding:8px 10px;font-size:0.85rem;font-family:inherit;color:#202124;outline:none;background:#fff;"></select>
+          </div>
+        </div>
+
+        <!-- 備考 -->
+        <div class="manual-field biko-field" id="mk-biko-wrap">
+          <label>備考 <span style="font-size:0.65rem;color:#999;">（ボタンを選んで組み合わせ）</span></label>
+          <div class="biko-btns" id="mk-biko-btns">
+            <button class="biko-btn mk-biko-btn" data-value="忙しい。">忙しい。</button>
+            <button class="biko-btn mk-biko-btn" data-value="不在。">不在。</button>
+          </div>
+          <input type="text" autocomplete="nope" id="mk-biko" placeholder="自由記述（任意）">
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <p class="step-label" style="margin-top:8px;">見込み — 出力プレビュー</p>
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="card">
+      <div class="card-title">📊 出力プレビュー</div>
+
+      <div class="output-table-wrap">
+        <table class="output-table" style="table-layout:auto;width:100%;">
+          <colgroup>
+            <col style="width:1%;white-space:nowrap;">
+            <col style="width:1%;white-space:nowrap;">
+            <col style="width:1%;white-space:nowrap;">
+            <col style="width:1%;white-space:nowrap;">
+            <col>
+          </colgroup>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>時刻</th>
+              <th>電話番号</th>
+              <th>電話番号2</th>
+              <th>備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="empty-cell" id="mo-date">—</td>
+              <td class="empty-cell" id="mo-time">—</td>
+              <td style="padding:4px 6px;"><input type="text" autocomplete="one-time-code" data-lpignore="true" data-form-type="other" id="mk-phone" placeholder="例：090-0000-0000" style="width:150px;min-width:150px;border:1px solid #dadce0;border-radius:4px;padding:6px 8px;font-size:0.82rem;font-family:inherit;color:#202124;outline:none;background:#fff;"></td>
+              <td style="padding:4px 6px;"><input type="text" autocomplete="one-time-code" data-lpignore="true" data-form-type="other" id="mk-phone2" placeholder="例：090-0000-0000" style="width:150px;min-width:150px;border:1px solid #dadce0;border-radius:4px;padding:6px 8px;font-size:0.82rem;font-family:inherit;color:#202124;outline:none;background:#fff;"></td>
+              <td class="empty-cell" id="mo-biko" style="white-space:normal;word-break:break-all;">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="copy-actions">
+        <button class="btn-copy-main" onclick="copyMikomi()">
+          📋 データ行をコピー（スプレッドシートへ貼り付け）
+        </button>
+        <button class="btn-clear" onclick="clearMikomi()" style="flex:none;padding:10px 24px;">
+          クリア
+        </button>
+      </div>
+
+      <div style="margin-top:12px;padding:10px 14px;background:#f8f9fa;border-radius:6px;border:1px solid #e8eaed;">
+        <p style="font-size:0.72rem;font-weight:500;color:#80868b;margin-bottom:6px;">📋 スプレッドシートへの貼り付け方</p>
+        <ol style="font-size:0.72rem;color:#9aa0a6;line-height:1.9;margin:0;padding-left:18px;">
+          <li>上の「データ行をコピー」ボタンを押す</li>
+          <li>スプレッドシートを開く</li>
+          <li>貼り付けたい行の左端の数字（行番号）をクリックして行全体を選択</li>
+          <li>Ctrl+V で貼り付け</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+<!-- ===== 追客 セクション ===== -->
+<p class="step-label" style="margin-top:16px;">追客 — 入力</p>
+<div style="max-width:1100px;margin:0 auto;">
+  <div class="card">
+    <div class="card-title">✏️ 入力項目</div>
+    <div class="manual-field biko-field">
+      <label>備考 <span style="font-size:0.65rem;color:#999;">（ボタンを選んで組み合わせ）</span></label>
+      <div class="biko-btns" id="tk-biko-btns" style="margin-bottom:8px;">
+        <button class="biko-btn tk-biko-btn" data-value="留守。">留守。</button>
+        <button class="biko-btn tk-biko-btn" data-value="忙しい。">忙しい。</button>
+        <button class="biko-btn tk-biko-btn" data-value="不在。">不在。</button>
+      </div>
+      <input type="text" autocomplete="nope" id="tk-biko-free" placeholder="自由記述（任意）">
+    </div>
+  </div>
+</div>
+
+<p class="step-label" style="margin-top:8px;">追客 — 出力プレビュー</p>
+<div style="max-width:1100px;margin:0 auto;">
+  <div class="card">
+    <div class="card-title">📊 出力プレビュー</div>
+    <div class="biko-preview" id="tk-preview">—</div>
+
+    <div class="copy-actions" style="margin-top:14px;">
+      <button class="btn-copy-main" onclick="copyTuikyaku()">
+        📋 データをコピー
+      </button>
+      <button class="btn-clear" onclick="clearTuikyaku()" style="flex:none;padding:10px 24px;">
+        クリア
+      </button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /panel-mikomi -->
+
+<!-- ===== トスアップ タブ ===== -->
+<div class="tab-panel" id="panel-tossup">
+
 <!-- ===== STEP 1 ===== -->
-<p class="step-label">STEP 1 — GBPテキストを貼り付けて整理</p>
+<p class="step-label" style="margin-top:16px;">トス — GBPテキストを貼り付けて整理</p>
 <div class="step1-grid">
 
   <!-- 左：テキスト入力 -->
   <div class="card">
     <div class="card-title">📋 GBPテキスト貼り付け</div>
-    <textarea id="inputText" placeholder="Googleビジネスプロフィールの&#10;屋号から電話番号の範囲を選択してコピーしてから貼り付けてください。"></textarea>
+    <textarea autocomplete="nope" id="inputText" placeholder="Googleビジネスプロフィールの&#10;屋号から電話番号の範囲を選択してコピーしてから貼り付けてください。"></textarea>
     <button class="btn-parse" onclick="parse()">🔍 整理する　(Ctrl+Enter)</button>
     <button class="btn-clear" onclick="clearAll()">クリア</button>
   </div>
@@ -498,19 +757,19 @@
     <div class="auto-fields">
       <div class="auto-field">
         <span class="auto-label">業種</span>
-        <input type="text" class="auto-input" id="prev-category" placeholder="未取得（直接入力可）">
+        <input type="text" autocomplete="nope" class="auto-input" id="prev-category" placeholder="未取得（直接入力可）">
       </div>
       <div class="auto-field">
         <span class="auto-label">住所</span>
-        <input type="text" class="auto-input" id="prev-address" placeholder="未取得（直接入力可）">
+        <input type="text" autocomplete="nope" class="auto-input" id="prev-address" autocomplete="one-time-code" data-lpignore="true" data-form-type="other" placeholder="未取得（直接入力可）">
       </div>
       <div class="auto-field">
         <span class="auto-label">電話番号</span>
-        <input type="text" class="auto-input" id="prev-phone" placeholder="未取得（直接入力可）">
+        <input type="text" autocomplete="nope" class="auto-input" id="prev-phone" autocomplete="one-time-code" data-lpignore="true" data-form-type="other" placeholder="未取得（直接入力可）">
       </div>
       <div class="auto-field">
         <span class="auto-label">屋号</span>
-        <input type="text" class="auto-input" id="prev-name" placeholder="未取得（直接入力可）">
+        <input type="text" autocomplete="nope" class="auto-input" id="prev-name" autocomplete="one-time-code" data-lpignore="true" data-form-type="other" placeholder="未取得（直接入力可）">
       </div>
     </div>
   </div>
@@ -518,30 +777,28 @@
 </div>
 
 <!-- ===== STEP 2 ===== -->
-<p class="step-label" style="margin-top:8px;">STEP 2 — 手動入力</p>
+<p class="step-label" style="margin-top:8px;">トス — 入力</p>
 <div class="step2-grid">
   <div class="card">
-    <div class="card-title">
-      ✏️ 手動入力項目
-    </div>
+    <div class="card-title">✏️ 手動入力項目</div>
     <div class="manual-fields">
 
       <!-- 左：直通番号 ＋ ご担当者（縦並び）/ col1, row1-2 -->
       <div style="display:flex;flex-direction:column;gap:14px;grid-column:1;grid-row:1/3;">
         <div class="manual-field">
           <label>直通番号</label>
-          <input type="text" id="m-direct" placeholder="例：090-0000-0000">
+          <input type="text" autocomplete="nope" id="m-direct" placeholder="例：090-0000-0000" autocomplete="one-time-code" data-lpignore="true" data-form-type="other">
         </div>
         <div class="manual-field contact-field" id="contact-wrap">
           <label>ご担当者 <span class="req-badge">性別・役職は必須</span></label>
-          <input type="text" id="m-contact-name" placeholder="ひらがなで入力" style="margin-bottom:5px;">
-          <select id="m-contact-gender" style="margin-bottom:5px;">
+          <input type="text" autocomplete="nope" id="m-contact-name" placeholder="ひらがなで入力" autocomplete="one-time-code" data-lpignore="true" data-form-type="other" style="margin-bottom:5px;">
+          <select autocomplete="nope" id="m-contact-gender" style="margin-bottom:5px;">
             <option value="">性別</option>
             <option value="男性">男性</option>
             <option value="女性">女性</option>
             <option value="不明">不明</option>
           </select>
-          <select id="m-contact-role">
+          <select autocomplete="nope" id="m-contact-role">
             <option value="">役職</option>
             <option value="オーナー">オーナー</option>
             <option value="店長">店長</option>
@@ -556,19 +813,55 @@
       <div class="manual-field biko-field" id="biko-wrap" style="grid-column:2/4;grid-row:1;">
         <label>備考 <span class="req-badge">必須</span> <span style="font-size:0.65rem;color:#999;">（ボタンを選んで組み合わせ）</span></label>
         <div class="biko-btns" id="biko-btns">
-          <button class="biko-btn" id="btn-jikan" data-value="【時間指定】">【時間指定】</button>
-          <button class="biko-btn" data-value="【急】">【急】</button>
           <button class="biko-btn" data-value="読み切り。">読み切り。</button>
           <button class="biko-btn exclusive" data-group="result" data-value="成果なし。">成果なし。</button>
           <button class="biko-btn exclusive" data-group="result" data-value="成果あり。">成果あり。</button>
           <button class="biko-btn" data-value="Googleより架電。">Googleより架電。</button>
+          <button class="biko-btn biko-btn-jikan" id="btn-jikan" data-value="【時間指定】">時間指定あり</button>
         </div>
         <div class="jikan-picker" id="jikan-picker">
-          <select id="jikan-date"></select>
-          <select id="jikan-time"></select>
+          <div class="jikan-step">
+            <span class="jikan-step-label">① いつ？</span>
+            <div class="jikan-btns" id="jikan-when-btns">
+              <button class="jikan-opt" data-when="today">本日</button>
+              <button class="jikan-opt" data-when="tomorrow">明日</button>
+              <button class="jikan-opt" data-when="date">日付指定</button>
+              <button class="jikan-opt" data-when="now">いますぐ</button>
+            </div>
+            <input type="date" autocomplete="nope" id="jikan-date" style="display:none;margin-top:6px;">
+          </div>
+          <div class="jikan-step" id="jikan-step-hour" style="display:none;">
+            <span class="jikan-step-label">② 何時？</span>
+            <div class="jikan-btns" id="jikan-hour-btns">
+              <button class="jikan-opt" data-hour="9">9時</button>
+              <button class="jikan-opt" data-hour="10">10時</button>
+              <button class="jikan-opt" data-hour="11">11時</button>
+              <button class="jikan-opt" data-hour="12">12時</button>
+              <button class="jikan-opt" data-hour="13">13時</button>
+              <button class="jikan-opt" data-hour="14">14時</button>
+              <button class="jikan-opt" data-hour="15">15時</button>
+              <button class="jikan-opt" data-hour="16">16時</button>
+              <button class="jikan-opt" data-hour="17">17時</button>
+              <button class="jikan-opt" data-hour="18">18時</button>
+              <button class="jikan-opt" data-hour="19">19時</button>
+              <button class="jikan-opt" data-hour="20">20時</button>
+              <button class="jikan-opt" data-hour="21">21時</button>
+              <button class="jikan-opt" data-hour="午前">午前</button>
+              <button class="jikan-opt" data-hour="午後">午後</button>
+            </div>
+          </div>
+          <div class="jikan-step" id="jikan-step-precision" style="display:none;">
+            <span class="jikan-step-label">③ 精度</span>
+            <div class="jikan-btns" id="jikan-prec-btns">
+              <button class="jikan-opt" data-prec="頃">頃</button>
+              <button class="jikan-opt" data-prec="30分頃">30分頃</button>
+              <button class="jikan-opt" data-prec="台">台</button>
+              <button class="jikan-opt" data-prec="以降">以降</button>
+            </div>
+          </div>
         </div>
-        <div class="biko-preview" id="biko-preview">—</div>
-        <input type="text" id="m-biko-free" placeholder="自由記述（任意）" style="margin-top:6px;">
+        <input type="text" autocomplete="nope" id="m-biko-free" placeholder="自由記述（任意）" style="margin-top:6px;">
+        <textarea class="biko-preview" id="biko-preview" placeholder="—" rows="1" style="margin-top:6px;width:100%;border:1px solid #dadce0;border-radius:4px;padding:7px 10px;font-size:0.82rem;font-family:inherit;color:#202124;outline:none;background:#f8f9fa;resize:none;overflow:hidden;line-height:1.5;min-height:34px;"></textarea>
       </div>
 
       <!-- 中下：アポ / col2, row2 -->
@@ -582,7 +875,7 @@
           <button class="apo-btn" data-value="田中">田中</button>
           <button class="apo-btn" data-value="桂川">桂川</button>
         </div>
-        <input type="text" id="m-apo" placeholder="自由記入" style="width:100%;border:1.5px solid #d0d7de;border-radius:7px;padding:7px 10px;font-size:0.85rem;font-family:inherit;color:#333;outline:none;background:#fff;">
+        <input type="text" autocomplete="nope" id="m-apo" placeholder="自由記入" style="width:100%;border:1.5px solid #d0d7de;border-radius:7px;padding:7px 10px;font-size:0.85rem;font-family:inherit;color:#333;outline:none;background:#fff;">
       </div>
 
       <!-- 右下：C見込 / col3, row2 -->
@@ -596,12 +889,10 @@
 </div>
 
 <!-- ===== STEP 3 ===== -->
-<p class="step-label" style="margin-top:8px;">STEP 3 — スプレッドシートへ貼り付け</p>
+<p class="step-label" style="margin-top:8px;">トス — 出力プレビュー</p>
 <div class="step3-wrap">
   <div class="card">
-    <div class="card-title">
-      📊 出力プレビュー
-    </div>
+    <div class="card-title">📊 出力プレビュー</div>
 
     <div class="output-table-wrap">
       <table class="output-table">
@@ -654,12 +945,25 @@
 
   </div>
 </div>
+</div><!-- /panel-tossup -->
 
 </div><!-- /.page-body -->
 
 <div class="toast" id="toast"></div>
 
 <script>
+  // ============================================================
+  //  タブ切替
+  // ============================================================
+  function switchTab(tabName) {
+    document.querySelectorAll('.mode-tab').forEach(t => {
+      t.classList.toggle('active', t.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-' + tabName);
+    });
+  }
+
   // ============================================================
   //  パース
   // ============================================================
@@ -1015,8 +1319,8 @@
     });
   });
 
-  // 備考ボタンの制御
-  document.querySelectorAll('.biko-btn').forEach(btn => {
+  // 備考ボタンの制御（トスアップ側のみ）
+  document.querySelectorAll('.biko-btn:not(.mk-biko-btn):not(.tk-biko-btn)').forEach(btn => {
     btn.addEventListener('click', () => {
       const group = btn.dataset.group;
       if (group) {
@@ -1026,86 +1330,151 @@
         });
       }
       btn.classList.toggle('active');
-      // 「【時間指定】」ボタンの場合は日時ピッカーを連動
+      // 「時間指定あり」ボタンの場合は日時ピッカーを連動
       if (btn.id === 'btn-jikan') {
         const isActive = btn.classList.contains('active');
         document.getElementById('jikan-picker').classList.toggle('visible', isActive);
-        // アクティブになったとき現在時刻をデフォルト設定（日付は「本日」=先頭）
-        if (isActive) {
-          const now   = new Date();
-          const min30 = Math.round(now.getMinutes() / 30) * 30;
-          now.setMinutes(min30, 0, 0);
-          const hh = String(now.getHours()).padStart(2, '0');
-          const mi = String(now.getMinutes()).padStart(2, '0');
-          document.getElementById('jikan-date').selectedIndex = 0; // 本日
-          document.getElementById('jikan-time').value = `${hh}:${mi}`;
-          updateOutput();
-        }
+        if (!isActive) resetJikanPicker();
       }
       updateOutput();
     });
   });
 
-  // 日付セレクトの選択肢を生成（本日〜60日後）
-  (function buildDateOptions() {
-    const DAY = ['日','月','火','水','木','金','土'];
-    const sel  = document.getElementById('jikan-date');
-    const base = new Date();
-    base.setHours(0, 0, 0, 0);
-    for (let i = 0; i <= 60; i++) {
-      const d    = new Date(base.getTime() + i * 86400000);
-      const yyyy = d.getFullYear();
-      const mm   = String(d.getMonth() + 1).padStart(2, '0');
-      const dd   = String(d.getDate()).padStart(2, '0');
-      const opt  = document.createElement('option');
-      opt.value  = `${yyyy}-${mm}-${dd}`;
-      opt.textContent = i === 0 ? '本日' : i === 1 ? '明日' : `${d.getMonth()+1}/${d.getDate()}(${DAY[d.getDay()]})`;
-      sel.appendChild(opt);
-    }
-  })();
+  // ============================================================
+  //  時間指定あり — 3ステップピッカー
+  // ============================================================
+  let jikanState = { when: '', hour: '', prec: '' };
 
-  // 時刻セレクトの選択肢を生成（00:00〜23:30、30分単位）
-  (function buildTimeOptions() {
-    const sel = document.getElementById('jikan-time');
-    for (let h = 0; h < 24; h++) {
-      for (const m of [0, 30]) {
-        const hh  = String(h).padStart(2, '0');
-        const mi  = String(m).padStart(2, '0');
-        const opt = document.createElement('option');
-        opt.value = `${hh}:${mi}`;
-        opt.textContent = `${h}:${mi}`;
-        sel.appendChild(opt);
+  function resetJikanPicker() {
+    jikanState = { when: '', hour: '', prec: '' };
+    document.querySelectorAll('.jikan-opt.active').forEach(b => b.classList.remove('active'));
+    document.getElementById('jikan-date').style.display = 'none';
+    document.getElementById('jikan-date').value = '';
+    document.getElementById('jikan-step-hour').style.display = 'none';
+    document.getElementById('jikan-step-precision').style.display = 'none';
+    updateOutput();
+  }
+
+  // ① いつ？
+  document.querySelectorAll('#jikan-when-btns .jikan-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#jikan-when-btns .jikan-opt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      jikanState.when = btn.dataset.when;
+      jikanState.hour = '';
+      jikanState.prec = '';
+      document.querySelectorAll('#jikan-hour-btns .jikan-opt, #jikan-prec-btns .jikan-opt').forEach(b => b.classList.remove('active'));
+
+      // 日付指定の場合はカレンダー表示
+      const dateInput = document.getElementById('jikan-date');
+      if (jikanState.when === 'date') {
+        dateInput.style.display = 'block';
+      } else {
+        dateInput.style.display = 'none';
+        dateInput.value = '';
       }
-    }
-  })();
 
-  // 日時ピッカーの変更でも出力を更新
-  ['jikan-date','jikan-time'].forEach(id => {
-    document.getElementById(id).addEventListener('change', updateOutput);
+      if (jikanState.when === 'now') {
+        // いますぐ → ②③不要
+        document.getElementById('jikan-step-hour').style.display = 'none';
+        document.getElementById('jikan-step-precision').style.display = 'none';
+      } else {
+        // 本日・明日・日付指定 → ②を表示
+        document.getElementById('jikan-step-hour').style.display = '';
+        document.getElementById('jikan-step-precision').style.display = 'none';
+      }
+      updateOutput();
+    });
+  });
+
+  // 日付指定カレンダー変更
+  document.getElementById('jikan-date').addEventListener('change', updateOutput);
+
+  // ② 何時？
+  document.querySelectorAll('#jikan-hour-btns .jikan-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#jikan-hour-btns .jikan-opt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      jikanState.hour = btn.dataset.hour;
+      jikanState.prec = '';
+      document.querySelectorAll('#jikan-prec-btns .jikan-opt').forEach(b => b.classList.remove('active'));
+      // 午前・午後は③不要、それ以外は③を表示
+      if (jikanState.hour === '午前' || jikanState.hour === '午後') {
+        document.getElementById('jikan-step-precision').style.display = 'none';
+      } else {
+        document.getElementById('jikan-step-precision').style.display = '';
+      }
+      updateOutput();
+    });
+  });
+
+  // ③ 精度
+  document.querySelectorAll('#jikan-prec-btns .jikan-opt').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#jikan-prec-btns .jikan-opt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      jikanState.prec = btn.dataset.prec;
+      updateOutput();
+    });
   });
 
   function jikanStr() {
-    const d = document.getElementById('jikan-date').value; // "YYYY-MM-DD"
-    const t = document.getElementById('jikan-time').value; // "HH:MM"
-    if (!d && !t) return '';
-    let result = '';
-    if (d) {
+    if (!jikanState.when) return '';
+    if (jikanState.when === 'now') return 'いますぐ架電希望。';
+    if (!jikanState.hour) return '';
+
+    const h = jikanState.hour;
+
+    // 午前・午後は③不要で確定
+    if (h === '午前' || h === '午後') {
+      let whenStr = '';
+      let sep = '';
+      if (jikanState.when === 'today') { whenStr = '本日'; }
+      else if (jikanState.when === 'tomorrow') { whenStr = '明日'; }
+      else if (jikanState.when === 'date') {
+        const d = document.getElementById('jikan-date').value;
+        if (!d) return '';
+        const [, mm, dd] = d.split('-');
+        whenStr = `${parseInt(mm)}/${parseInt(dd)}`;
+        sep = ' ';
+      }
+      return `${whenStr}${sep}${h}に架電希望。`;
+    }
+
+    // 具体的な時間は③が必要
+    if (!jikanState.prec) return '';
+
+    let whenStr = '';
+    let sep = ' ';
+    if (jikanState.when === 'today') {
+      whenStr = '本日';
+      sep = '';
+    } else if (jikanState.when === 'tomorrow') {
+      whenStr = '明日';
+      sep = '';
+    } else if (jikanState.when === 'date') {
+      const d = document.getElementById('jikan-date').value;
+      if (!d) return '';
       const [, mm, dd] = d.split('-');
-      result += `${parseInt(mm)}/${parseInt(dd)}`;
+      whenStr = `${parseInt(mm)}/${parseInt(dd)}`;
     }
-    if (t) {
-      const [hh, min] = t.split(':');
-      result += (d ? ' ' : '') + `${parseInt(hh)}:${min}`;
-    }
-    return result;
+
+    const p = jikanState.prec;
+    let timeStr = '';
+    if (p === '頃') timeStr = `${h}時頃`;
+    else if (p === '30分頃') timeStr = `${h}時30分頃`;
+    else if (p === '台') timeStr = `${h}時台`;
+    else if (p === '以降') timeStr = `${h}時以降`;
+
+    return `${whenStr}${sep}${timeStr}に架電希望。`;
   }
 
   function buildBiko() {
     const parts = [nowStr() + ' '];
-    document.querySelectorAll('.biko-btn.active').forEach(btn => {
+    document.querySelectorAll('.biko-btn.active:not(.mk-biko-btn):not(.tk-biko-btn)').forEach(btn => {
       if (btn.id === 'btn-jikan') {
         const js = jikanStr();
-        parts.push(js ? `【時間指定：${js}】` : '【時間指定】');
+        if (js) parts.push(js);
       } else {
         parts.push(btn.dataset.value);
       }
@@ -1158,10 +1527,24 @@
     document.getElementById('o-meo').classList.remove('empty-cell');
     setOut('o-biko',     biko);
     const prev = document.getElementById('biko-preview');
-    if (biko) { prev.textContent = biko; prev.classList.remove('empty'); }
-    else      { prev.textContent = '—';  prev.classList.add('empty'); }
+    if (biko) { prev.value = biko; }
+    else      { prev.value = ''; }
+    autoResizeBiko();
     setOut('o-apo',      apo);
   }
+
+  // プレビュー欄の自動リサイズ
+  function autoResizeBiko() {
+    const el = document.getElementById('biko-preview');
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  // プレビュー欄を手動編集したら出力テーブルにも反映
+  document.getElementById('biko-preview').addEventListener('input', function() {
+    setOut('o-biko', this.value.trim());
+    autoResizeBiko();
+  });
 
   function nowStr() {
     const d = new Date();
@@ -1178,7 +1561,7 @@
   const HEADERS = ['C見込','業種','住所','電話番号','直通番号','屋号','ご担当者','MEO','備考','アポ'];
 
   function getRowValues() {
-    const biko = buildBiko();
+    const biko = document.getElementById('biko-preview').value.trim();
     const cmikomi = document.getElementById('btn-cmikomi').classList.contains('active') ? 'C見込' : '';
     return [
       cmikomi,       // A列
@@ -1206,7 +1589,7 @@
       { value: document.getElementById('prev-name').value.trim(),     label: '屋号',    id: null },
       { value: document.getElementById('m-contact-gender').value, label: '性別', id: 'contact-wrap' },
       { value: document.getElementById('m-contact-role').value,   label: '役職', id: 'contact-wrap' },
-      { value: buildBiko(),     label: '備考', id: 'biko-wrap' },
+      { value: document.getElementById('biko-preview').value.trim(), label: '備考', id: 'biko-wrap' },
       { value: document.getElementById('m-apo').value.trim(), label: 'アポ', id: 'apo-wrap' },
     ];
     const missingItems = checks.filter(c => !c.value);
@@ -1267,10 +1650,10 @@
     document.querySelectorAll('.biko-btn.active, .apo-btn.active').forEach(b => b.classList.remove('active'));
     document.getElementById('btn-cmikomi').classList.remove('active');
     document.getElementById('jikan-picker').classList.remove('visible');
-    document.getElementById('jikan-date').selectedIndex = 0;
-    document.getElementById('jikan-time').selectedIndex = 0;
+    resetJikanPicker();
     const prev = document.getElementById('biko-preview');
-    prev.textContent = '—'; prev.classList.add('empty');
+    prev.value = '';
+    autoResizeBiko();
     ['m-contact-gender','m-contact-role'].forEach(id => {
       document.getElementById(id).selectedIndex = 0;
     });
@@ -1280,6 +1663,18 @@
     });
     ['o-cmikomi','o-category','o-address','o-phone','o-direct','o-name','o-contact','o-biko','o-apo'].forEach(id => setOut(id,''));
     document.getElementById('o-meo').textContent = 'MEO';
+    // 見込み・追客タブもクリア
+    ['mk-phone','mk-phone2','mk-biko'].forEach(id => { document.getElementById(id).value = ''; });
+    document.querySelectorAll('.mk-biko-btn.active').forEach(b => b.classList.remove('active'));
+    // 追客もクリア
+    document.getElementById('tk-biko-free').value = '';
+    document.querySelectorAll('.tk-biko-btn.active').forEach(b => b.classList.remove('active'));
+    const tkPrev = document.getElementById('tk-preview');
+    tkPrev.textContent = '—'; tkPrev.classList.add('empty');
+    const now = new Date();
+    document.getElementById('mk-date').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('mk-time').selectedIndex = 0;
+    ['mo-date','mo-time','mo-biko'].forEach(id => setOut(id,''));
   }
 
   function showToast(msg, isError = false) {
@@ -1295,8 +1690,189 @@
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') parse();
   });
 
+  // ============================================================
+  //  見込み・追客タブ
+  // ============================================================
+
+  // 日付セレクト生成（mk-date）
+  // 日付入力のデフォルト値を本日に設定
+  (function initMkDate() {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth()+1).padStart(2,'0');
+    const dd = String(now.getDate()).padStart(2,'0');
+    document.getElementById('mk-date').value = `${yyyy}-${mm}-${dd}`;
+  })();
+
+  // 時刻セレクト生成（mk-time）— デフォルト：現在時刻の30分後（30分単位切り上げ）
+  (function buildMkTimeOptions() {
+    const sel = document.getElementById('mk-time');
+    for (let h = 9; h <= 21; h++) {
+      for (const m of [0, 30]) {
+        if (h === 21 && m === 30) continue; // 21:00まで
+        const hh = String(h).padStart(2,'0');
+        const mi = String(m).padStart(2,'0');
+        const opt = document.createElement('option');
+        opt.value = `${hh}:${mi}`;
+        opt.textContent = `${h}:${mi}`;
+        sel.appendChild(opt);
+      }
+    }
+    // デフォルト：30分後を30分単位に切り上げ（9:00〜21:00にクランプ）
+    const now = new Date();
+    const future = new Date(now.getTime() + 30 * 60000);
+    const rMin = future.getMinutes() < 30 ? 0 : 30;
+    future.setMinutes(rMin, 0, 0);
+    let defHour = future.getHours();
+    let defMin  = future.getMinutes();
+    if (defHour < 9) { defHour = 9; defMin = 0; }
+    if (defHour > 21 || (defHour === 21 && defMin > 0)) { defHour = 21; defMin = 0; }
+    const defH = String(defHour).padStart(2,'0');
+    const defM = String(defMin).padStart(2,'0');
+    sel.value = `${defH}:${defM}`;
+  })();
+
+  function mkDateStr() {
+    const d = document.getElementById('mk-date').value;
+    if (!d) return '';
+    const [, mm, dd] = d.split('-');
+    return `${parseInt(mm)}/${parseInt(dd)}`;
+  }
+
+  function mkTimeStr() {
+    const t = document.getElementById('mk-time').value;
+    if (!t) return '';
+    const [hh, min] = t.split(':');
+    return `${parseInt(hh)}:${min}`;
+  }
+
+  function buildMikomiBiko() {
+    const parts = [nowStr() + ' '];
+    document.querySelectorAll('.mk-biko-btn.active').forEach(btn => {
+      parts.push(btn.dataset.value);
+    });
+    const free = document.getElementById('mk-biko').value.trim();
+    if (free) parts.push(free);
+    return parts.join('');
+  }
+
+  // 見込み備考ボタンの制御
+  document.querySelectorAll('.mk-biko-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      updateMikomiOutput();
+    });
+  });
+
+  function mkCallStr() {
+    const dateStr = mkDateStr();
+    const timeStr = mkTimeStr();
+    if (!dateStr && !timeStr) return '';
+    return [dateStr, timeStr].filter(Boolean).join(' ');
+  }
+
+  function updateMikomiOutput() {
+    setOut('mo-date', mkDateStr());
+    setOut('mo-time', mkTimeStr());
+    setOut('mo-biko', buildMikomiBiko());
+  }
+
+  // 入力変更で出力を更新
+  ['mk-date','mk-time'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateMikomiOutput);
+  });
+  ['mk-biko'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateMikomiOutput);
+  });
+
+  function clearMikomi() {
+    ['mk-phone','mk-phone2','mk-biko'].forEach(id => { document.getElementById(id).value = ''; });
+    document.querySelectorAll('.mk-biko-btn.active').forEach(b => b.classList.remove('active'));
+    const now = new Date();
+    document.getElementById('mk-date').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    // 時刻をデフォルト（30分後）にリセット
+    const future = new Date(now.getTime() + 30 * 60000);
+    const rMin = future.getMinutes() < 30 ? 0 : 30;
+    future.setMinutes(rMin, 0, 0);
+    let defH = future.getHours(), defM = future.getMinutes();
+    if (defH < 9) { defH = 9; defM = 0; }
+    if (defH > 21 || (defH === 21 && defM > 0)) { defH = 21; defM = 0; }
+    document.getElementById('mk-time').value = `${String(defH).padStart(2,'0')}:${String(defM).padStart(2,'0')}`;
+    ['mo-date','mo-time','mo-biko'].forEach(id => setOut(id,''));
+    updateMikomiOutput();
+    showToast('見込みをクリアしました');
+  }
+
+  function copyMikomi() {
+    updateMikomiOutput();
+
+    const dateVal  = mkDateStr();
+    const timeVal  = mkTimeStr();
+    const phoneVal = document.getElementById('mk-phone').value.trim();
+
+    // 必須チェック
+    const missing = [];
+    if (!dateVal || !timeVal) missing.push('次回コール日時');
+
+    if (missing.length > 0) {
+      showToast('⚠️ 未入力の項目があります：' + missing.join(' ・ '), true);
+      return;
+    }
+
+    const values = [
+      dateVal,
+      timeVal,
+      phoneVal,
+      document.getElementById('mk-phone2').value.trim(),
+      buildMikomiBiko(),
+    ];
+    copyToClipboard(values.join('\t'), '✅ コピーしました！スプレッドシートに貼り付けてください');
+  }
+
+  // ============================================================
+  //  追客
+  // ============================================================
+  document.querySelectorAll('.tk-biko-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.classList.toggle('active');
+      updateTuikyaku();
+    });
+  });
+  document.getElementById('tk-biko-free').addEventListener('input', updateTuikyaku);
+
+  function buildTuikyaku() {
+    const parts = ['▶' + nowStr() + ' '];
+    document.querySelectorAll('.tk-biko-btn.active').forEach(btn => {
+      parts.push(btn.dataset.value);
+    });
+    const free = document.getElementById('tk-biko-free').value.trim();
+    if (free) parts.push(free);
+    return parts.join('');
+  }
+
+  function updateTuikyaku() {
+    const val = buildTuikyaku();
+    const prev = document.getElementById('tk-preview');
+    prev.textContent = val;
+    prev.classList.remove('empty');
+  }
+
+  function copyTuikyaku() {
+    const val = buildTuikyaku();
+    copyToClipboard(val, '✅ コピーしました！スプレッドシートに貼り付けてください');
+  }
+
+  function clearTuikyaku() {
+    document.getElementById('tk-biko-free').value = '';
+    document.querySelectorAll('.tk-biko-btn.active').forEach(b => b.classList.remove('active'));
+    updateTuikyaku();
+    showToast('追客をクリアしました');
+  }
+
   // 初期出力プレビュー
   updateOutput();
+  updateMikomiOutput();
+  updateTuikyaku();
 </script>
 </body>
 </html>
