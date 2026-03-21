@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GBP 情報整理ツール</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Roboto', 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+      background: #f8f9fa;
+      color: #202124;
+      min-height: 100vh;
+    }
+
+    /* ===== アプリバー ===== */
+    .app-bar {
+      background: #fff;
+      border-bottom: 1px solid #dadce0;
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .app-bar-inner {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      height: 64px;
+    }
+    .brand-logo {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 1;
+      flex-shrink: 0;
+      font-family: 'Roboto', sans-serif;
+    }
+    .brand-divider {
+      width: 1px;
+      height: 28px;
+      background: #dadce0;
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #202124;
+      line-height: 1.3;
+    }
+    .brand-sub {
+      font-size: 0.78rem;
+      color: #5f6368;
+      margin-top: 2px;
+    }
+
+    /* ===== ページ本体 ===== */
+    .page-body {
+      padding: 20px 16px 60px;
+    }
+
+    /* ===== カード共通 ===== */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid #dadce0;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #1a73e8;
+      letter-spacing: 0.04em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-title .badge {
+      font-size: 0.68rem;
+      background: #e8f0fe;
+      color: #1a73e8;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-weight: 500;
+    }
+    .card-title .badge.manual {
+      background: #fce8e6;
+      color: #c5221f;
+    }
+    .card-title .badge.fixed {
+      background: #e6f4ea;
+      color: #137333;
+    }
+
+    /* ===== Step 1 ===== */
+    .step1-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 680px) {
+      .step1-grid { grid-template-columns: 1fr; }
+    }
+
+    textarea {
+      width: 100%;
+      height: 220px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      resize: vertical;
+      font-family: inherit;
+      color: #202124;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: #fff;
+    }
+    textarea:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26,115,232,.2);
+    }
+    textarea::placeholder { color: #9aa0a6; font-size: 0.78rem; }
+
+    .btn-parse {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+      letter-spacing: 0.01em;
+    }
+    .btn-parse:hover { background: #1765cc; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+
+    .btn-clear {
+      display: block;
+      width: 100%;
+      margin-top: 6px;
+      padding: 8px;
+      background: transparent;
+      color: #5f6368;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .btn-clear:hover { color: #202124; border-color: #bdc1c6; background: #f8f9fa; }
+
+    /* ===== 自動取得 ===== */
+    .auto-fields { display: flex; flex-direction: column; gap: 6px; }
+    .auto-field {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid #f1f3f4;
+    }
+    .auto-field:last-child { border-bottom: none; }
+    .auto-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #5f6368;
+      min-width: 68px;
+      flex-shrink: 0;
+    }
+    .auto-value { font-size: 0.85rem; color: #202124; line-height: 1.5; flex: 1; }
+    .auto-value.empty { color: #bdc1c6; font-style: italic; }
+
+    /* 自動取得フィールド：編集可能インライン入力 */
+    .auto-input {
+      flex: 1;
+      font-size: 0.85rem;
+      font-family: inherit;
+      color: #202124;
+      line-height: 1.5;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 2px 6px;
+      margin: -2px 0 -2px -6px;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .auto-input:hover  { border-color: #dadce0; background: #f8f9fa; }
+    .auto-input:focus  { border-color: #1a73e8; background: #fff; box-shadow: 0 0 0 2px rgba(26,115,232,.15); }
+    .auto-input::placeholder { color: #bdc1c6; font-style: italic; }
+
+    /* ===== Step 2 ===== */
+    .step2-grid { max-width: 1100px; margin: 0 auto; }
+    .manual-fields {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 760px) { .manual-fields { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px) { .manual-fields { grid-template-columns: 1fr; } }
+
+    .manual-field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #5f6368;
+      margin-bottom: 5px;
+    }
+    .manual-field input, .manual-field select {
+      width: 100%;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      color: #202124;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      background: #fff;
+    }
+    .manual-field input:focus,
+    .manual-field select:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26,115,232,.2);
+    }
+    .manual-field input::placeholder { color: #9aa0a6; }
+
+    .apo-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+    .apo-btn {
+      padding: 4px 14px;
+      border: 1px solid #dadce0;
+      border-radius: 16px;
+      background: #fff;
+      color: #3c4043;
+      font-size: 0.78rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .apo-btn:hover { border-color: #1a73e8; color: #1a73e8; background: #e8f0fe; }
+    .apo-btn.active { background: #1a73e8; border-color: #1a73e8; color: #fff; font-weight: 500; }
+
+    .cmikomi-btn {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      border: 1px solid #dadce0;
+      border-radius: 16px;
+      background: #fff;
+      color: #3c4043;
+      font-size: 0.78rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-top: 4px;
+    }
+    .cmikomi-btn:hover { border-color: #1a73e8; color: #1a73e8; background: #e8f0fe; }
+    .cmikomi-btn.active { background: #1a73e8; border-color: #1a73e8; color: #fff; font-weight: 500; }
+
+    .biko-field { }
+    .biko-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .biko-btn {
+      padding: 5px 13px;
+      border: 1px solid #dadce0;
+      border-radius: 16px;
+      background: #fff;
+      color: #3c4043;
+      font-size: 0.78rem;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .biko-btn:hover { border-color: #1a73e8; color: #1a73e8; background: #e8f0fe; }
+    .biko-btn.active { background: #1a73e8; border-color: #1a73e8; color: #fff; font-weight: 500; }
+
+    .biko-preview {
+      font-size: 0.82rem;
+      color: #202124;
+      background: #f8f9fa;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      padding: 7px 10px;
+      min-height: 32px;
+      word-break: break-all;
+    }
+    .biko-preview.empty { color: #9aa0a6; font-style: italic; }
+
+    .jikan-picker { display: none; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .jikan-picker.visible { display: flex; }
+    .jikan-picker input {
+      border: 1px solid #1a73e8;
+      border-radius: 4px;
+      padding: 6px 8px;
+      font-size: 0.82rem;
+      font-family: inherit;
+      color: #202124;
+      outline: none;
+      background: #fff;
+    }
+
+    /* ===== Step 3 ===== */
+    .step3-wrap { max-width: 1100px; margin: 0 auto; }
+
+    .output-table-wrap {
+      overflow-x: auto;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .output-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      min-width: 900px;
+    }
+    .output-table thead tr { background: #f8f9fa; }
+    .output-table th {
+      padding: 9px 14px;
+      font-size: 0.70rem;
+      font-weight: 500;
+      color: #5f6368;
+      border-right: 1px solid #dadce0;
+      border-bottom: 1px solid #dadce0;
+      text-align: left;
+      letter-spacing: 0.02em;
+    }
+    .output-table th:last-child { border-right: none; }
+    .output-table td {
+      padding: 10px 14px;
+      border-right: 1px solid #f1f3f4;
+      color: #202124;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .output-table td:last-child { border-right: none; }
+    .output-table td.empty-cell { color: #bdc1c6; font-style: italic; }
+    .output-table td.meo-cell { color: #137333; font-weight: 500; background: #f0faf4; }
+
+    /* ===== コピーボタン ===== */
+    .copy-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-copy-main {
+      flex: 1;
+      min-width: 200px;
+      padding: 12px 24px;
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      letter-spacing: 0.01em;
+    }
+    .btn-copy-main:hover { background: #1765cc; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+
+    /* ===== ステップラベル ===== */
+    .step-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: #5f6368;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 2px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .step-label::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 13px;
+      background: #1a73e8;
+      border-radius: 2px;
+    }
+
+    /* ===== 必須バッジ ===== */
+    .req-badge {
+      font-size: 0.62rem;
+      background: #fce8e6;
+      color: #c5221f;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-weight: 500;
+      margin-left: 5px;
+      letter-spacing: 0;
+    }
+
+    /* ===== エラーハイライト ===== */
+    @keyframes fieldShake {
+      0%, 100% { transform: translateX(0); }
+      25%       { transform: translateX(-5px); }
+      75%       { transform: translateX(5px); }
+    }
+    .field-err {
+      animation: fieldShake 0.35s ease;
+    }
+    .field-err select,
+    .field-err input {
+      border-color: #ea4335 !important;
+      box-shadow: 0 0 0 2px rgba(234,67,53,.2) !important;
+      background: #fff8f7 !important;
+    }
+    .field-err .biko-preview {
+      border-color: #ea4335 !important;
+      box-shadow: 0 0 0 2px rgba(234,67,53,.2) !important;
+      background: #fff8f7 !important;
+    }
+
+    /* ===== トースト ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #323232;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(.4,0,.2,1);
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 9999;
+      box-shadow: 0 3px 6px rgba(0,0,0,.2);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.error { background: #c5221f; font-size: 0.92rem; padding: 12px 28px; }
+  </style>
+</head>
+<body>
+
+<header class="app-bar">
+  <div class="app-bar-inner">
+    <div class="brand-logo">
+      <span style="color:#4285F4">G</span><span style="color:#EA4335">B</span><span style="color:#34A853">P</span>
+    </div>
+    <div class="brand-divider"></div>
+    <div>
+      <div class="brand-title">ビジネスプロフィール 情報整理ツール</div>
+      <div class="brand-sub">GBP テキストを貼り付け &rarr; 整理 &rarr; スプレッドシートへ貼り付け</div>
+    </div>
+  </div>
+</header>
+
+<div class="page-body">
+
+<!-- ===== STEP 1 ===== -->
+<p class="step-label">STEP 1 — GBPテキストを貼り付けて整理</p>
+<div class="step1-grid">
+
+  <!-- 左：テキスト入力 -->
+  <div class="card">
+    <div class="card-title">📋 GBPテキスト貼り付け</div>
+    <textarea id="inputText" placeholder="Googleビジネスプロフィールの&#10;屋号から電話番号の範囲を選択してコピーしてから貼り付けてください。"></textarea>
+    <button class="btn-parse" onclick="parse()">🔍 整理する　(Ctrl+Enter)</button>
+    <button class="btn-clear" onclick="clearAll()">クリア</button>
+  </div>
+
+  <!-- 右：自動取得プレビュー -->
+  <div class="card">
+    <div class="card-title">
+      ⚡ 自動取得
+      <span class="badge">GBPから抽出</span>
+    </div>
+    <div class="auto-fields">
+      <div class="auto-field">
+        <span class="auto-label">業種</span>
+        <input type="text" class="auto-input" id="prev-category" placeholder="未取得（直接入力可）">
+      </div>
+      <div class="auto-field">
+        <span class="auto-label">住所</span>
+        <input type="text" class="auto-input" id="prev-address" placeholder="未取得（直接入力可）">
+      </div>
+      <div class="auto-field">
+        <span class="auto-label">電話番号</span>
+        <input type="text" class="auto-input" id="prev-phone" placeholder="未取得（直接入力可）">
+      </div>
+      <div class="auto-field">
+        <span class="auto-label">屋号</span>
+        <input type="text" class="auto-input" id="prev-name" placeholder="未取得（直接入力可）">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== STEP 2 ===== -->
+<p class="step-label" style="margin-top:8px;">STEP 2 — 手動入力</p>
+<div class="step2-grid">
+  <div class="card">
+    <div class="card-title">
+      ✏️ 手動入力項目
+    </div>
+    <div class="manual-fields">
+
+      <!-- 左：直通番号 ＋ ご担当者（縦並び）/ col1, row1-2 -->
+      <div style="display:flex;flex-direction:column;gap:14px;grid-column:1;grid-row:1/3;">
+        <div class="manual-field">
+          <label>直通番号</label>
+          <input type="text" id="m-direct" placeholder="例：090-0000-0000">
+        </div>
+        <div class="manual-field contact-field" id="contact-wrap">
+          <label>ご担当者 <span class="req-badge">性別・役職は必須</span></label>
+          <input type="text" id="m-contact-name" placeholder="ひらがなで入力" style="margin-bottom:5px;">
+          <select id="m-contact-gender" style="margin-bottom:5px;">
+            <option value="">性別</option>
+            <option value="男性">男性</option>
+            <option value="女性">女性</option>
+            <option value="不明">不明</option>
+          </select>
+          <select id="m-contact-role">
+            <option value="">役職</option>
+            <option value="オーナー">オーナー</option>
+            <option value="店長">店長</option>
+            <option value="Web担当">Web担当</option>
+            <option value="その他">その他</option>
+            <option value="不明">不明</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 中央〜右：備考 / col2-3, row1 -->
+      <div class="manual-field biko-field" id="biko-wrap" style="grid-column:2/4;grid-row:1;">
+        <label>備考 <span class="req-badge">必須</span> <span style="font-size:0.65rem;color:#999;">（ボタンを選んで組み合わせ）</span></label>
+        <div class="biko-btns" id="biko-btns">
+          <button class="biko-btn" id="btn-jikan" data-value="【時間指定】">【時間指定】</button>
+          <button class="biko-btn" data-value="【急】">【急】</button>
+          <button class="biko-btn" data-value="読み切り。">読み切り。</button>
+          <button class="biko-btn exclusive" data-group="result" data-value="成果なし。">成果なし。</button>
+          <button class="biko-btn exclusive" data-group="result" data-value="成果あり。">成果あり。</button>
+          <button class="biko-btn" data-value="Googleより架電。">Googleより架電。</button>
+        </div>
+        <div class="jikan-picker" id="jikan-picker">
+          <select id="jikan-date"></select>
+          <select id="jikan-time"></select>
+        </div>
+        <div class="biko-preview" id="biko-preview">—</div>
+        <input type="text" id="m-biko-free" placeholder="自由記述（任意）" style="margin-top:6px;">
+      </div>
+
+      <!-- 中下：アポ / col2, row2 -->
+      <div class="manual-field" id="apo-wrap" style="grid-column:2;grid-row:2;">
+        <label style="display:block;font-size:0.72rem;font-weight:500;color:#5f6368;margin-bottom:4px;">アポ <span class="req-badge">必須</span></label>
+        <div class="apo-btns">
+          <button class="apo-btn" data-value="船岡">船岡</button>
+          <button class="apo-btn" data-value="長澤">長澤</button>
+          <button class="apo-btn" data-value="長谷">長谷</button>
+          <button class="apo-btn" data-value="阿部">阿部</button>
+          <button class="apo-btn" data-value="田中">田中</button>
+          <button class="apo-btn" data-value="桂川">桂川</button>
+        </div>
+        <input type="text" id="m-apo" placeholder="自由記入" style="width:100%;border:1.5px solid #d0d7de;border-radius:7px;padding:7px 10px;font-size:0.85rem;font-family:inherit;color:#333;outline:none;background:#fff;">
+      </div>
+
+      <!-- 右下：C見込 / col3, row2 -->
+      <div class="manual-field" id="cmikomi-wrap" style="grid-column:3;grid-row:2;">
+        <label>C見込</label>
+        <button class="cmikomi-btn" id="btn-cmikomi">C見込</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== STEP 3 ===== -->
+<p class="step-label" style="margin-top:8px;">STEP 3 — スプレッドシートへ貼り付け</p>
+<div class="step3-wrap">
+  <div class="card">
+    <div class="card-title">
+      📊 出力プレビュー
+    </div>
+
+    <div class="output-table-wrap">
+      <table class="output-table">
+        <thead>
+          <tr>
+            <th>C見込</th>
+            <th>業種</th>
+            <th>住所</th>
+            <th>電話番号</th>
+            <th>直通番号</th>
+            <th>屋号</th>
+            <th>ご担当者</th>
+            <th>MEO</th>
+            <th>備考</th>
+            <th>アポ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="output-row">
+            <td class="empty-cell" id="o-cmikomi">—</td>
+            <td class="empty-cell" id="o-category">—</td>
+            <td class="empty-cell" id="o-address">—</td>
+            <td class="empty-cell" id="o-phone">—</td>
+            <td class="empty-cell" id="o-direct">—</td>
+            <td class="empty-cell" id="o-name">—</td>
+            <td class="empty-cell" id="o-contact">—</td>
+            <td id="o-meo">MEO</td>
+            <td class="empty-cell" id="o-biko">—</td>
+            <td class="empty-cell" id="o-apo">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="copy-actions">
+      <button class="btn-copy-main" onclick="copyData()">
+        📋 データ行をコピー（スプレッドシートへ貼り付け）
+      </button>
+    </div>
+
+    <div style="margin-top:12px;padding:10px 14px;background:#f8f9fa;border-radius:6px;border:1px solid #e8eaed;">
+      <p style="font-size:0.72rem;font-weight:500;color:#80868b;margin-bottom:6px;">📋 スプレッドシートへの貼り付け方</p>
+      <ol style="font-size:0.72rem;color:#9aa0a6;line-height:1.9;margin:0;padding-left:18px;">
+        <li>上の「データ行をコピー」ボタンを押す</li>
+        <li>スプレッドシートを開く</li>
+        <li>貼り付けたい行の左端の数字（行番号）をクリックして行全体を選択</li>
+        <li>Ctrl+V で貼り付け</li>
+      </ol>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /.page-body -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ============================================================
+  //  パース
+  // ============================================================
+
+  // ---- 基本パターン ----
+  const phoneRe = /(?:電話[:：\s]*)?(\d{2,4}[-−ー]\d{2,4}[-−ー]\d{3,4}|\d{10,11})/;
+  const urlRe   = /https?:\/\/[^\s\u3000　]+/;
+  const addrRe  = /〒\d{3}-?\d{4}|(?:北海道|[^\s]{2,3}[都道府県])[^\n]{2,20}[市区町村郡]/;
+  const hoursRe = /[月火水木金土日](?:曜日)?[\s　]*\d{1,2}[:：]\d{2}|\d{1,2}[:：]\d{2}[\s　]*[〜～–\-][\s　]*\d{1,2}[:：]\d{2}/;
+
+  // 評価行: "4.2 (85)" / "4.5（1,234件）" / "★4.2" など
+  const ratingLineRe = /^[\d.]+[\s　]*[（(]\s*[\d,]+(?:件[^）)]*)?[）)]|^[★☆][\d.]+/;
+
+  // 金額パターン（セグメント判定用）:
+  //   ¥記号付き / 円表記 / テキスト価格帯（お手頃・リーズナブル・高級など）
+  const priceRe = /[¥￥][\d,]+(?:\s*(?:以上|以下|〜|～|~)[^\s·・‧･]*)?|[\d,]+\s*円|お手頃|リーズナブル|高級/;
+
+  // 行頭の価格帯プレフィックス（直後に空白・区切り + 業種が続くパターン）
+  //   例: "¥3,000～4,000 " / "¥3,000 " / "お手頃 " / "¥10,000以上 "
+  const pricePrefixRe = /^(?:[¥￥][\d,]+(?:\s*[〜～~]\s*[¥￥]?[\d,]+)?(?:\s*(?:以上|以下|程度|前後))?|[\d,]+\s*円(?:\s*(?:以上|以下|程度|前後))?|お手頃|リーズナブル|高級)[\s　·・‧･]*/;
+
+  // 地域名プレフィックス後の業種: "練馬区の接骨院" / "渋谷区の美容室" / "大阪市の居酒屋"
+  const locationCatRe = /^.+(?:市|区|町|村)の(\S{2,20})$/;
+
+  // 中点区切り文字（U+00B7·, U+30FB・, U+2027‧, U+FF65･）
+  const dotSepRe      = /[·・‧･]/;
+  const dotSepSplitRe = /[·・‧･]/;
+
+  // カテゴリから地域名プレフィックスを除去: "練馬区の接骨院" → "接骨院"
+  function cleanCategory(s) {
+    return s.replace(/^.+の(?=\S{2,})/, '').trim();
+  }
+
+  // UIボタン・ノイズ行
+  const uiLineRe = /^(?:ルート|保存|共有|送る|もっと見る|提案|編集|写真|動画|フォロー|予約|お問い合わせ|ウェブサイト|メニュー|注文|クーポン|特典)/;
+
+  // ============================================================
+  //  業種カテゴリ辞書（約280種類）
+  // ============================================================
+  const CATEGORY_LIST = [
+    // ===== 飲食・フード =====
+    'ラーメン店','ラーメン屋','寿司店','寿司屋','回転寿司店','居酒屋','焼肉店','焼肉屋',
+    'カフェ','喫茶店','コーヒーショップ','珈琲店','レストラン','食堂','定食屋','弁当店','弁当屋',
+    'パン屋','ベーカリー','ケーキ屋','洋菓子店','和菓子屋','スイーツショップ','菓子店',
+    'イタリアンレストラン','フレンチレストラン','フランス料理店',
+    '中華料理店','中華料理','韓国料理店','韓国料理',
+    'インド料理店','タイ料理店','ベトナム料理店','エスニック料理店',
+    '焼き鳥店','焼き鳥屋','串焼き店','串揚げ店','天ぷら店','天ぷら屋',
+    'そば店','そば屋','うどん店','うどん屋',
+    'ピザ店','ピザ屋','ハンバーガーショップ','バーガーショップ',
+    'ステーキレストラン','ステーキ店','とんかつ店','とんかつ屋','唐揚げ専門店',
+    'しゃぶしゃぶ店','すき焼き店','お好み焼き店','たこ焼き店','餃子店','もつ鍋店','水炊き店',
+    '海鮮料理店','海鮮居酒屋','鉄板焼きレストラン','鉄板焼き店','鍋料理店',
+    '和食レストラン','和食店','洋食レストラン','洋食店','ファミリーレストラン',
+    'バー','ワインバー','日本酒バー','ビアバー','スナック','クラブ','バル',
+    'タピオカ店','アイスクリーム店','アイスクリームショップ',
+    'カレー店','カレー屋','ファストフード店','テイクアウト専門店',
+    'ジュースバー','スムージーショップ','ティーハウス','紅茶専門店',
+    // ===== 美容・理容 =====
+    '美容院','美容室','ヘアサロン','理容室','バーバー','理容店','床屋',
+    'ネイルサロン','エステサロン','エステ','まつげサロン','アイラッシュサロン',
+    '眉毛サロン','脱毛サロン','フェイシャルサロン','リラクゼーションサロン',
+    'アロマサロン','スパ','ヘッドスパ','ボディケアサロン',
+    // ===== マッサージ・整体 =====
+    'マッサージ店','マッサージサロン','マッサージ','整体院','整体サロン','整体',
+    '整骨院','接骨院','鍼灸院','鍼灸整骨院','鍼灸接骨院','カイロプラクティック',
+    // ===== 医療 =====
+    '内科','外科','整形外科','皮膚科','眼科','耳鼻咽喉科','耳鼻科',
+    '小児科','産婦人科','産科','精神科','心療内科','神経内科',
+    '循環器内科','消化器内科','泌尿器科','形成外科','美容外科','美容皮膚科',
+    '歯科','歯科医院','歯科クリニック','矯正歯科','小児歯科','口腔外科',
+    'クリニック','診療所','病院','総合病院','大学病院',
+    '薬局','調剤薬局','ドラッグストア','薬店',
+    '動物病院','動物クリニック','獣医院',
+    '老人ホーム','デイサービス','訪問介護','介護施設','特別養護老人ホーム','グループホーム',
+    // ===== フィットネス・スポーツ =====
+    'フィットネスジム','スポーツジム','フィットネスクラブ','ジム',
+    'ヨガスタジオ','ピラティススタジオ',
+    'ボクシングジム','格闘技ジム','空手道場','柔道場','剣道場','武道館',
+    'パーソナルトレーニングジム','トレーニングジム',
+    'テニスクラブ','テニスコート','ゴルフスクール','ゴルフスタジオ','ゴルフ練習場',
+    '水泳教室','スイミングスクール','ダンススクール','バレエ教室',
+    // ===== 教育・習い事 =====
+    '学習塾','進学塾','予備校','英会話スクール','英語教室',
+    '音楽教室','ピアノ教室','ギター教室','ドラム教室','ボーカルスクール',
+    '絵画教室','習字教室','書道教室','そろばん教室',
+    'プログラミングスクール','パソコン教室',
+    '料理教室','フラワーアレンジメント教室',
+    '保育園','幼稚園','認定こども園','学童保育','認可保育所','託児所',
+    // ===== 宿泊 =====
+    'ホテル','旅館','民宿','ゲストハウス','ペンション',
+    'ビジネスホテル','カプセルホテル','ラブホテル','温泉旅館',
+    'リゾートホテル','ホステル','民泊',
+    // ===== 小売・ショッピング =====
+    'コンビニエンスストア','コンビニ','スーパーマーケット','スーパー',
+    '百貨店','デパート','ショッピングモール','商業施設',
+    '家電量販店','家電店','書店','本屋','古本屋',
+    '花屋','酒屋','八百屋','肉屋','魚屋','食料品店',
+    '靴屋','シューズショップ','衣料品店','洋品店','古着屋',
+    'アウトドアショップ','スポーツ用品店',
+    'おもちゃ屋','ゲームショップ',
+    'ホームセンター','インテリアショップ','家具店','雑貨店','文具店',
+    '眼鏡店','メガネ店','時計店','宝石店','ジュエリーショップ',
+    'リサイクルショップ','アンティークショップ',
+    'ブランドショップ','セレクトショップ','100円ショップ','ディスカウントショップ',
+    // ===== 自動車・交通 =====
+    '自動車販売店','カーディーラー','ガソリンスタンド','整備工場',
+    'カー用品店','洗車場','レンタカー','バイク販売店','中古車販売店','タイヤショップ','車検専門店',
+    // ===== 建設・不動産 =====
+    '不動産会社','不動産店','不動産屋','工務店','建設会社',
+    'リフォーム会社','内装工事店','外装工事店','造園会社',
+    'ハウスメーカー','解体業者','電気工事店','水道工事店','塗装会社',
+    // ===== 金融・士業 =====
+    '銀行','信用金庫','郵便局','証券会社','保険会社','保険代理店',
+    '税理士事務所','会計事務所','法律事務所','弁護士事務所',
+    '司法書士事務所','行政書士事務所','社会保険労務士事務所','公認会計士事務所',
+    // ===== ビジネスサービス =====
+    'クリーニング店','コインランドリー','写真館','フォトスタジオ',
+    '葬儀社','葬儀場','結婚式場','ウェディングサロン','ブライダルサロン',
+    '旅行代理店','引越し業者','引越し会社','清掃会社','警備会社',
+    '印刷会社','コピーショップ','人材派遣会社','広告代理店',
+    'コワーキングスペース','貸し会議室','レンタルスペース',
+    // ===== ペット =====
+    'ペットショップ','ペットサロン','トリミングサロン','ペットホテル',
+    // ===== エンターテイメント・レジャー =====
+    'カラオケ店','カラオケボックス','カラオケ',
+    '映画館','パチンコ店','スロット店','ゲームセンター','アミューズメント施設',
+    'ボウリング場','ビリヤード場','ダーツバー',
+    '温泉施設','日帰り温泉','銭湯','サウナ',
+    '漫画喫茶','ネットカフェ','脱出ゲーム',
+    'ゴルフ場','釣り堀','乗馬クラブ','キャンプ場','テーマパーク','遊園地',
+    // ===== 宗教・文化施設 =====
+    '神社','寺院','寺','教会',
+    '図書館','美術館','博物館','科学館','水族館','動物園','植物園','公民館',
+  ];
+
+  // 長い名称を優先するため降順ソート（O(1) 集合検索用 Set も作成）
+  const CATEGORY_SET = new Set(CATEGORY_LIST);
+  const CATEGORY_LIST_BY_LENGTH = [...CATEGORY_LIST].sort((a, b) => b.length - a.length);
+
+  // テキスト中から業種名を検索して返す（最長一致優先）
+  function findCategoryInText(text) {
+    if (!text || text.length < 2) return null;
+    const trimmed = text.trim();
+    const cleaned = cleanCategory(trimmed);
+    // 完全一致（クリーニング後 → 元テキスト の順）
+    if (CATEGORY_SET.has(cleaned)) return cleaned;
+    if (CATEGORY_SET.has(trimmed)) return trimmed;
+    // 部分一致（長い業種名を優先）
+    for (const cat of CATEGORY_LIST_BY_LENGTH) {
+      if (cleaned.includes(cat) || trimmed.includes(cat)) return cat;
+    }
+    return null;
+  }
+
+  function extractFields(lines) {
+    const r = { name:'', phone:'', address:'', category:'' };
+
+    // ---- 電話番号 ----
+    for (const line of lines) {
+      const m = line.match(phoneRe);
+      if (m) { r.phone = m[1]; break; }
+    }
+
+    // ---- 住所 ----
+    for (const line of lines) {
+      if (addrRe.test(line)) {
+        r.address = truncateAddress(line.replace(/^(?:住所|所在地)[\s　]*[:：][\s　]*/, ''));
+        break;
+      }
+    }
+
+    // ---- カテゴリ抽出（辞書照合・優先度順） ----
+
+    // 【優先1】評価行の中点分割セグメントから辞書照合
+    //   例: "4.2 (85) · 中華料理店 · ¥1,000〜¥2,000"   → "中華料理店"
+    //   例: "4.2 (85) ‧ ¥10,000以上 ‧ 接骨院"          → "接骨院"
+    //   例: "4.2 (85) · 練馬区の接骨院 · ¥3,000"        → "接骨院"
+    for (const line of lines) {
+      if (!ratingLineRe.test(line)) continue;
+      if (!dotSepRe.test(line)) continue;
+      const segments = line.split(dotSepSplitRe).map(s => s.trim()).filter(s => s.length > 0);
+      for (const seg of segments) {
+        if (ratingLineRe.test(seg) || priceRe.test(seg)) continue;
+        const cat = findCategoryInText(seg);
+        if (cat) { r.category = cat; break; }
+      }
+      if (r.category) break;
+    }
+
+    // 【優先2】"· カテゴリ名" だけの行（評価と別行になっているケース）
+    if (!r.category) {
+      for (const line of lines) {
+        if (!dotSepRe.test(line) || !/^[·・‧･]\s*\S/.test(line) || line.length > 35) continue;
+        const seg = line.replace(/^[·・‧･]\s*/, '').trim();
+        if (!priceRe.test(seg)) {
+          const cat = findCategoryInText(seg);
+          if (cat) { r.category = cat; break; }
+        }
+      }
+    }
+
+    // 【優先2.3】行頭の価格帯を除去した後に業種が続くパターン（スペース区切り）
+    //   例: "¥3,000～4,000 美容室" / "お手頃 カフェ" / "¥3,000 接骨院"
+    if (!r.category) {
+      for (const line of lines) {
+        if (!pricePrefixRe.test(line)) continue;
+        if (ratingLineRe.test(line) || uiLineRe.test(line)) continue;
+        const rest = line.replace(pricePrefixRe, '').trim();
+        if (rest.length >= 2 && rest.length <= 40 &&
+            !priceRe.test(rest) && !addrRe.test(rest) && !phoneRe.test(rest)) {
+          const cat = findCategoryInText(rest);
+          if (cat) { r.category = cat; break; }
+        }
+      }
+    }
+
+    // 【優先2.5】価格‧業種 が同一行・中点区切り（評価行以外）
+    //   例: "¥10,000 以上‧接骨院" / "¥1,000～2,000‧居酒屋"
+    if (!r.category) {
+      for (const line of lines) {
+        if (!priceRe.test(line) || !dotSepRe.test(line)) continue;
+        if (ratingLineRe.test(line) || uiLineRe.test(line)) continue;
+        const segments = line.split(dotSepSplitRe).map(s => s.trim()).filter(s => s.length > 0);
+        for (const seg of segments) {
+          if (priceRe.test(seg) || ratingLineRe.test(seg)) continue;
+          const cat = findCategoryInText(seg);
+          if (cat) { r.category = cat; break; }
+        }
+        if (r.category) break;
+      }
+    }
+
+    // 【優先2.7】地域名プレフィックス "〇〇市の業種" / "〇〇区の業種" パターン
+    if (!r.category) {
+      const checkLocSeg = seg => {
+        const m = seg.match(locationCatRe);
+        if (!m) return null;
+        return CATEGORY_SET.has(m[1]) ? m[1] : findCategoryInText(m[1]);
+      };
+      for (const line of lines) {
+        if (ratingLineRe.test(line)) {
+          if (dotSepRe.test(line)) {
+            for (const seg of line.split(dotSepSplitRe).map(s => s.trim())) {
+              const cat = checkLocSeg(seg);
+              if (cat) { r.category = cat; break; }
+            }
+          }
+          if (r.category) break;
+          continue;
+        }
+        if (addrRe.test(line) || phoneRe.test(line) || urlRe.test(line) || uiLineRe.test(line)) continue;
+        const cat = checkLocSeg(line);
+        if (cat) { r.category = cat; break; }
+      }
+    }
+
+    // 【優先3】全行を辞書照合でスキャン（2行目以降、住所より前）
+    if (!r.category) {
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (addrRe.test(line) || phoneRe.test(line) || urlRe.test(line)) break;
+        if (ratingLineRe.test(line) || hoursRe.test(line) || uiLineRe.test(line)) continue;
+        if (/^営業|^閉店|^定休/.test(line)) continue;
+        // 価格行は価格部分を除去してから検索
+        const searchText = priceRe.test(line) ? line.replace(pricePrefixRe, '').trim() : line;
+        if (searchText.length < 2 || searchText.length > 40) continue;
+        const cat = findCategoryInText(searchText);
+        if (cat) { r.category = cat; break; }
+      }
+    }
+
+    // ---- 屋号（ビジネス名）----
+    //
+    // Googleマップのコピーテキストは「ビジネス名が必ず先頭行」というルールがある。
+    // 評価行・住所・電話・URL・営業時間・中点行・UIボタン行を読み飛ばして
+    // 最初に現れた行を屋号とする。
+    for (const line of lines) {
+      if (ratingLineRe.test(line)) continue;           // 評価行
+      if (addrRe.test(line)) continue;                 // 住所
+      if (phoneRe.test(line)) continue;                // 電話番号
+      if (urlRe.test(line)) continue;                  // URL
+      if (hoursRe.test(line)) continue;                // 営業時間
+      if (/^[·・]/.test(line)) continue;              // 中点行
+      if (uiLineRe.test(line)) continue;               // UIボタン
+      if (/^(?:営業中|営業時間外|閉店|定休)/.test(line)) continue;
+      if (line.length >= 1 && line.length <= 60) {
+        r.name = line;
+        break;
+      }
+    }
+
+    return r;
+  }
+
+  // 住所を都道府県＋市区町村レベルに切り詰め
+  function truncateAddress(addr) {
+    addr = addr.replace(/〒\d{3}-?\d{4}[\s　]*/, '');
+    // 「大阪府大阪市北区」「東京都渋谷区」「神奈川県横浜市中区」などを抽出
+    const m = addr.match(/(北海道|[^\s]{2,3}[都道府県])([^\s]{2,6}?[市区](?:[^\s]{1,4}?[区])?|[^\s]{2,6}?[町村郡])/);
+    if (m) return (m[1] + m[2]).trim();
+    const p = addr.match(/(北海道|[^\s]{2,3}[都道府県])/);
+    if (p) return p[1].trim();
+    return addr.trim();
+  }
+
+  // ============================================================
+  //  メイン処理
+  // ============================================================
+  let parsed = { name:'', phone:'', address:'', category:'' };
+
+  function parse() {
+    const raw = document.getElementById('inputText').value;
+    if (!raw.trim()) { showToast('テキストを貼り付けてください'); return; }
+    const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    parsed = extractFields(lines);
+
+    // 自動取得プレビュー更新
+    setAuto('prev-category', parsed.category);
+    setAuto('prev-address',  parsed.address);
+    setAuto('prev-phone',    parsed.phone);
+    setAuto('prev-name',     parsed.name);
+
+    updateOutput();
+    showToast('整理が完了しました！');
+  }
+
+  // C見込ボタンの制御
+  document.getElementById('btn-cmikomi').addEventListener('click', () => {
+    document.getElementById('btn-cmikomi').classList.toggle('active');
+    updateOutput();
+  });
+
+  // アポボタンの制御
+  document.querySelectorAll('.apo-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById('m-apo');
+      if (btn.classList.contains('active')) {
+        btn.classList.remove('active');
+        input.value = '';
+      } else {
+        document.querySelectorAll('.apo-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        input.value = btn.dataset.value;
+      }
+      updateOutput();
+    });
+  });
+  document.getElementById('m-apo').addEventListener('input', () => {
+    const val = document.getElementById('m-apo').value.trim();
+    document.querySelectorAll('.apo-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.value === val);
+    });
+  });
+
+  // 備考ボタンの制御
+  document.querySelectorAll('.biko-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.group;
+      if (group) {
+        // 同グループの他ボタンをオフ（排他）
+        document.querySelectorAll(`.biko-btn[data-group="${group}"]`).forEach(b => {
+          if (b !== btn) b.classList.remove('active');
+        });
+      }
+      btn.classList.toggle('active');
+      // 「【時間指定】」ボタンの場合は日時ピッカーを連動
+      if (btn.id === 'btn-jikan') {
+        const isActive = btn.classList.contains('active');
+        document.getElementById('jikan-picker').classList.toggle('visible', isActive);
+        // アクティブになったとき現在時刻をデフォルト設定（日付は「本日」=先頭）
+        if (isActive) {
+          const now   = new Date();
+          const min30 = Math.round(now.getMinutes() / 30) * 30;
+          now.setMinutes(min30, 0, 0);
+          const hh = String(now.getHours()).padStart(2, '0');
+          const mi = String(now.getMinutes()).padStart(2, '0');
+          document.getElementById('jikan-date').selectedIndex = 0; // 本日
+          document.getElementById('jikan-time').value = `${hh}:${mi}`;
+          updateOutput();
+        }
+      }
+      updateOutput();
+    });
+  });
+
+  // 日付セレクトの選択肢を生成（本日〜60日後）
+  (function buildDateOptions() {
+    const DAY = ['日','月','火','水','木','金','土'];
+    const sel  = document.getElementById('jikan-date');
+    const base = new Date();
+    base.setHours(0, 0, 0, 0);
+    for (let i = 0; i <= 60; i++) {
+      const d    = new Date(base.getTime() + i * 86400000);
+      const yyyy = d.getFullYear();
+      const mm   = String(d.getMonth() + 1).padStart(2, '0');
+      const dd   = String(d.getDate()).padStart(2, '0');
+      const opt  = document.createElement('option');
+      opt.value  = `${yyyy}-${mm}-${dd}`;
+      opt.textContent = i === 0 ? '本日' : i === 1 ? '明日' : `${d.getMonth()+1}/${d.getDate()}(${DAY[d.getDay()]})`;
+      sel.appendChild(opt);
+    }
+  })();
+
+  // 時刻セレクトの選択肢を生成（00:00〜23:30、30分単位）
+  (function buildTimeOptions() {
+    const sel = document.getElementById('jikan-time');
+    for (let h = 0; h < 24; h++) {
+      for (const m of [0, 30]) {
+        const hh  = String(h).padStart(2, '0');
+        const mi  = String(m).padStart(2, '0');
+        const opt = document.createElement('option');
+        opt.value = `${hh}:${mi}`;
+        opt.textContent = `${h}:${mi}`;
+        sel.appendChild(opt);
+      }
+    }
+  })();
+
+  // 日時ピッカーの変更でも出力を更新
+  ['jikan-date','jikan-time'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateOutput);
+  });
+
+  function jikanStr() {
+    const d = document.getElementById('jikan-date').value; // "YYYY-MM-DD"
+    const t = document.getElementById('jikan-time').value; // "HH:MM"
+    if (!d && !t) return '';
+    let result = '';
+    if (d) {
+      const [, mm, dd] = d.split('-');
+      result += `${parseInt(mm)}/${parseInt(dd)}`;
+    }
+    if (t) {
+      const [hh, min] = t.split(':');
+      result += (d ? ' ' : '') + `${parseInt(hh)}:${min}`;
+    }
+    return result;
+  }
+
+  function buildBiko() {
+    const parts = [nowStr() + ' '];
+    document.querySelectorAll('.biko-btn.active').forEach(btn => {
+      if (btn.id === 'btn-jikan') {
+        const js = jikanStr();
+        parts.push(js ? `【時間指定：${js}】` : '【時間指定】');
+      } else {
+        parts.push(btn.dataset.value);
+      }
+    });
+    const free = document.getElementById('m-biko-free').value.trim();
+    if (free) parts.push(free);
+    return parts.join('');
+  }
+
+  // 自動取得フィールドを手動修正したら出力も更新
+  ['prev-category','prev-address','prev-phone','prev-name'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateOutput);
+  });
+
+  // 手動入力が変わったら出力も更新
+  ['m-direct','m-contact-name','m-biko-free','m-apo'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateOutput);
+  });
+  ['m-contact-gender','m-contact-role'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateOutput);
+  });
+
+  function buildContact() {
+    const name   = document.getElementById('m-contact-name').value.trim();
+    const gender = document.getElementById('m-contact-gender').value;
+    const role   = document.getElementById('m-contact-role').value;
+    const parts  = [];
+    if (name)   parts.push(name + '様');
+    if (gender) parts.push(gender);
+    if (role)   parts.push(role);
+    return parts.join('/');
+  }
+
+  function updateOutput() {
+    const direct   = document.getElementById('m-direct').value.trim();
+    const contact  = buildContact();
+    const apo      = document.getElementById('m-apo').value.trim();
+    const biko     = buildBiko();
+    const cmikomi  = document.getElementById('btn-cmikomi').classList.contains('active') ? 'C見込' : '';
+
+    setOut('o-cmikomi', cmikomi);
+    setOut('o-category', document.getElementById('prev-category').value.trim());
+    setOut('o-address',  document.getElementById('prev-address').value.trim());
+    setOut('o-phone',    document.getElementById('prev-phone').value.trim());
+    setOut('o-direct',   direct);
+    setOut('o-name',     document.getElementById('prev-name').value.trim());
+    setOut('o-contact',  contact);
+    // MEO は常に固定
+    document.getElementById('o-meo').textContent = 'MEO';
+    document.getElementById('o-meo').classList.remove('empty-cell');
+    setOut('o-biko',     biko);
+    const prev = document.getElementById('biko-preview');
+    if (biko) { prev.textContent = biko; prev.classList.remove('empty'); }
+    else      { prev.textContent = '—';  prev.classList.add('empty'); }
+    setOut('o-apo',      apo);
+  }
+
+  function nowStr() {
+    const d = new Date();
+    const mm  = d.getMonth() + 1;
+    const dd  = d.getDate();
+    const hh  = d.getHours();
+    const min = String(d.getMinutes()).padStart(2,'0');
+    return `${mm}/${dd} ${hh}:${min}`;
+  }
+
+  // ============================================================
+  //  コピー
+  // ============================================================
+  const HEADERS = ['C見込','業種','住所','電話番号','直通番号','屋号','ご担当者','MEO','備考','アポ'];
+
+  function getRowValues() {
+    const biko = buildBiko();
+    const cmikomi = document.getElementById('btn-cmikomi').classList.contains('active') ? 'C見込' : '';
+    return [
+      cmikomi,       // A列
+      '', '', '', '', '', '',  // B〜G列（空欄）
+      document.getElementById('prev-category').value.trim(), // H列
+      document.getElementById('prev-address').value.trim(),
+      document.getElementById('prev-phone').value.trim(),
+      document.getElementById('m-direct').value.trim(),
+      document.getElementById('prev-name').value.trim(),
+      buildContact(),
+      'MEO',
+      biko,
+      document.getElementById('m-apo').value.trim(),
+    ];
+  }
+
+  function copyData() {
+    // 前回のエラーハイライトをリセット
+    document.querySelectorAll('.field-err').forEach(el => el.classList.remove('field-err'));
+
+    const checks = [
+      { value: document.getElementById('prev-category').value.trim(), label: '業種',    id: null },
+      { value: document.getElementById('prev-address').value.trim(),  label: '住所',    id: null },
+      { value: document.getElementById('prev-phone').value.trim(),    label: '電話番号', id: null },
+      { value: document.getElementById('prev-name').value.trim(),     label: '屋号',    id: null },
+      { value: document.getElementById('m-contact-gender').value, label: '性別', id: 'contact-wrap' },
+      { value: document.getElementById('m-contact-role').value,   label: '役職', id: 'contact-wrap' },
+      { value: buildBiko(),     label: '備考', id: 'biko-wrap' },
+      { value: document.getElementById('m-apo').value.trim(), label: 'アポ', id: 'apo-wrap' },
+    ];
+    const missingItems = checks.filter(c => !c.value);
+    if (missingItems.length > 0) {
+      const labels  = [...new Set(missingItems.map(c => c.label))];
+      const ids     = [...new Set(missingItems.map(c => c.id).filter(Boolean))];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('field-err');
+      });
+      setTimeout(() => {
+        document.querySelectorAll('.field-err').forEach(el => el.classList.remove('field-err'));
+      }, 5000);
+      showToast('⚠️ 未入力の項目があります：' + labels.join(' ・ '), true);
+      return;
+    }
+    updateOutput(); // 時刻を最新化
+    const tsv = getRowValues().join('\t');
+    copyToClipboard(tsv, '✅ コピーしました！スプレッドシートに貼り付けてください');
+  }
+
+  function copyHeader() {
+    copyToClipboard(HEADERS.join('\t'), 'ヘッダー行をコピーしました');
+  }
+
+  function copyToClipboard(text, msg) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast(msg))
+      .catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast(msg);
+      });
+  }
+
+  // ============================================================
+  //  UI ヘルパー
+  // ============================================================
+  function setAuto(id, val) {
+    document.getElementById(id).value = val || '';
+  }
+
+  function setOut(id, val) {
+    const el = document.getElementById(id);
+    if (val) { el.textContent = val; el.classList.remove('empty-cell'); }
+    else     { el.textContent = '—'; el.classList.add('empty-cell'); }
+  }
+
+  function clearAll() {
+    document.getElementById('inputText').value = '';
+    ['m-direct','m-contact-name','m-biko-free','m-apo'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.querySelectorAll('.biko-btn.active, .apo-btn.active').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-cmikomi').classList.remove('active');
+    document.getElementById('jikan-picker').classList.remove('visible');
+    document.getElementById('jikan-date').selectedIndex = 0;
+    document.getElementById('jikan-time').selectedIndex = 0;
+    const prev = document.getElementById('biko-preview');
+    prev.textContent = '—'; prev.classList.add('empty');
+    ['m-contact-gender','m-contact-role'].forEach(id => {
+      document.getElementById(id).selectedIndex = 0;
+    });
+    parsed = { name:'', phone:'', address:'', category:'' };
+    ['prev-category','prev-address','prev-phone','prev-name'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    ['o-cmikomi','o-category','o-address','o-phone','o-direct','o-name','o-contact','o-biko','o-apo'].forEach(id => setOut(id,''));
+    document.getElementById('o-meo').textContent = 'MEO';
+  }
+
+  function showToast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.toggle('error', isError);
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.classList.remove('show'); }, isError ? 5000 : 3000);
+  }
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') parse();
+  });
+
+  // 初期出力プレビュー
+  updateOutput();
+</script>
+</body>
+</html>
