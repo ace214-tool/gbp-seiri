@@ -582,6 +582,57 @@
       .toast { font-size: 0.78rem; padding: 8px 16px; white-space: normal; max-width: 90vw; text-align: center; }
       .toast.error { font-size: 0.82rem; padding: 10px 18px; }
     }
+    /* ===== 架電元カスケードドロップダウン ===== */
+    .kaden-dropdown { position: relative; display: inline-block; }
+    .kaden-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 4px;
+      min-width: 200px;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      z-index: 200;
+      padding: 4px 0;
+    }
+    .kaden-dropdown.open > .kaden-menu { display: block; }
+    .kaden-item {
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      color: #202124;
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+      transition: background 0.1s;
+    }
+    .kaden-item:hover { background: #f1f3f4; }
+    .kaden-has-sub { padding-right: 28px; }
+    .kaden-submenu {
+      display: none;
+      position: absolute;
+      left: 100%;
+      top: -4px;
+      min-width: 170px;
+      background: #fff;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      padding: 4px 0;
+    }
+    .kaden-has-sub:hover > .kaden-submenu { display: block; }
+    .kaden-submenu .kaden-item:hover { background: #fff8f0; color: #e37400; }
+
+    /* スマホ：サブメニューを左に出す余裕がなければ右揃え */
+    @media (max-width: 540px) {
+      .kaden-menu { min-width: 170px; }
+      .kaden-submenu {
+        left: auto;
+        right: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -816,7 +867,30 @@
           <button class="biko-btn" data-value="読み切り。">読み切り。</button>
           <button class="biko-btn exclusive" data-group="result" data-value="成果なし。">成果なし。</button>
           <button class="biko-btn exclusive" data-group="result" data-value="成果あり。">成果あり。</button>
-          <button class="biko-btn" data-value="Googleより架電。">Googleより架電。</button>
+          <div class="kaden-dropdown" id="kaden-dropdown">
+            <button type="button" class="biko-btn" id="kaden-trigger">架電元を選択 ▾</button>
+            <div class="kaden-menu" id="kaden-menu">
+              <div class="kaden-item kaden-clear" id="kaden-clear" style="display:none;color:#c5221f;font-size:0.72rem;">✕ 選択を解除</div>
+              <div class="kaden-item" data-value="Google">Google</div>
+              <div class="kaden-item" data-value="ホットペッパーグルメ">ホットペッパーグルメ</div>
+              <div class="kaden-item" data-value="食べログ">食べログ</div>
+              <div class="kaden-item" data-value="ホットペッパービューティー">ホットペッパービューティー</div>
+              <div class="kaden-item" data-value="EPARK">EPARK</div>
+              <div class="kaden-item kaden-has-sub">夜系媒体 ▸
+                <div class="kaden-submenu">
+                  <div class="kaden-item" data-value="ポケパラ">ポケパラ</div>
+                  <div class="kaden-item" data-value="体入ショコラ">体入ショコラ</div>
+                  <div class="kaden-item" data-value="体入ドットコム">体入ドットコム</div>
+                  <div class="kaden-item" data-value="ポケパラ体入">ポケパラ体入</div>
+                  <div class="kaden-item" data-value="バイトル">バイトル</div>
+                  <div class="kaden-item" data-value="スナカラ">スナカラ</div>
+                  <div class="kaden-item" data-value="スナックナビ">スナックナビ</div>
+                  <div class="kaden-item" data-value="体入ガルル">体入ガルル</div>
+                  <div class="kaden-item" data-value="体入エミリー">体入エミリー</div>
+                </div>
+              </div>
+            </div>
+          </div>
           <button class="biko-btn biko-btn-jikan" id="btn-jikan" data-value="【時間指定】">時間指定あり</button>
         </div>
         <div class="jikan-picker" id="jikan-picker">
@@ -1320,7 +1394,7 @@
   });
 
   // 備考ボタンの制御（トスアップ側のみ）
-  document.querySelectorAll('.biko-btn:not(.mk-biko-btn):not(.tk-biko-btn)').forEach(btn => {
+  document.querySelectorAll('.biko-btn:not(.mk-biko-btn):not(.tk-biko-btn):not(#kaden-trigger)').forEach(btn => {
     btn.addEventListener('click', () => {
       const group = btn.dataset.group;
       if (group) {
@@ -1471,14 +1545,18 @@
 
   function buildBiko() {
     const parts = [nowStr() + ' '];
-    document.querySelectorAll('.biko-btn.active:not(.mk-biko-btn):not(.tk-biko-btn)').forEach(btn => {
-      if (btn.id === 'btn-jikan') {
-        const js = jikanStr();
-        if (js) parts.push(js);
-      } else {
-        parts.push(btn.dataset.value);
-      }
+    // ① 通常ボタン（読み切り・成果なし/あり）
+    document.querySelectorAll('.biko-btn.active:not(.mk-biko-btn):not(.tk-biko-btn):not(#kaden-trigger):not(#btn-jikan)').forEach(btn => {
+      parts.push(btn.dataset.value);
     });
+    // ② 架電元ドロップダウン（元の Googleより架電。の位置）
+    if (kadenSelectedValue) parts.push(kadenSelectedValue + 'より架電。');
+    // ③ 時間指定あり
+    if (document.getElementById('btn-jikan').classList.contains('active')) {
+      const js = jikanStr();
+      if (js) parts.push(js);
+    }
+    // ④ 自由記述
     const free = document.getElementById('m-biko-free').value.trim();
     if (free) parts.push(free);
     return parts.join('');
@@ -1493,6 +1571,60 @@
   ['m-direct','m-contact-name','m-biko-free','m-apo'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateOutput);
   });
+  // 架電元カスケードドロップダウン
+  let kadenSelectedValue = '';
+  (function initKadenDropdown() {
+    const dropdown = document.getElementById('kaden-dropdown');
+    const trigger  = document.getElementById('kaden-trigger');
+    const menu     = document.getElementById('kaden-menu');
+
+    // トリガーボタンのクリックで開閉
+    trigger.addEventListener('click', e => {
+      e.stopPropagation();
+      dropdown.classList.toggle('open');
+    });
+
+    // メニュー項目クリック（data-valueを持つもの = 最終選択肢）
+    menu.querySelectorAll('.kaden-item[data-value]').forEach(item => {
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        kadenSelectedValue = item.dataset.value;
+        trigger.textContent = item.dataset.value + 'より架電 ▾';
+        trigger.classList.add('active');
+        const isYoru = item.closest('.kaden-has-sub') !== null;
+        trigger.style.background = isYoru ? '#e37400' : '#1a73e8';
+        trigger.style.borderColor = isYoru ? '#e37400' : '#1a73e8';
+        trigger.style.color = '#fff';
+        document.getElementById('kaden-clear').style.display = '';
+        dropdown.classList.remove('open');
+        updateOutput();
+      });
+    });
+
+    // クリア項目
+    document.getElementById('kaden-clear').addEventListener('click', e => {
+      e.stopPropagation();
+      resetKadenDropdown();
+      dropdown.classList.remove('open');
+      updateOutput();
+    });
+
+    // ドキュメントクリックで閉じる
+    document.addEventListener('click', () => dropdown.classList.remove('open'));
+    menu.addEventListener('click', e => e.stopPropagation());
+  })();
+
+  function resetKadenDropdown() {
+    kadenSelectedValue = '';
+    const trigger = document.getElementById('kaden-trigger');
+    trigger.textContent = '架電元を選択 ▾';
+    trigger.classList.remove('active');
+    trigger.style.background = '';
+    trigger.style.borderColor = '';
+    trigger.style.color = '';
+    document.getElementById('kaden-clear').style.display = 'none';
+    document.getElementById('kaden-dropdown').classList.remove('open');
+  }
   ['m-contact-gender','m-contact-role'].forEach(id => {
     document.getElementById(id).addEventListener('change', updateOutput);
   });
@@ -1648,6 +1780,8 @@
       document.getElementById(id).value = '';
     });
     document.querySelectorAll('.biko-btn.active, .apo-btn.active').forEach(b => b.classList.remove('active'));
+    // 架電元ドロップダウンをリセット
+    resetKadenDropdown();
     document.getElementById('btn-cmikomi').classList.remove('active');
     document.getElementById('jikan-picker').classList.remove('visible');
     resetJikanPicker();
